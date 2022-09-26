@@ -11,6 +11,10 @@ function Todolist() {
     const inputChanged=(event)=>{
         setTodo({...todo,[event.target.name]:event.target.value})
     }
+
+    const deleteTodo = (row) => {
+        setTodos(todos.filter((todo, index)=> index !== row))
+    }
     return(
         <div className="List">
             <h2>Todolist</h2>
@@ -33,6 +37,7 @@ function Todolist() {
                             <tr key={index}>
                             <td>{todo.date}</td>
                             <td>{todo.desc}</td>
+                            <td><button onClick={() => deleteTodo(index)}>Delete</button></td>
                             </tr>)
                     }
                 </tbody>
