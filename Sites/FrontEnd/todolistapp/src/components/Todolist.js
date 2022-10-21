@@ -1,6 +1,14 @@
 import React, {useState, useRef} from 'react';
-import TodoTable from './TodoTable'
 import { AgGridReact } from'ag-grid-react'
+import Button from '@mui/material/Button'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Snackbar from '@mui/material/Snackbar';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import Stack from '@mui/material/Stack'
+import {TextField} from '@mui/material';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import'ag-grid-community/dist/styles/ag-grid.css'
 import'ag-grid-community/dist/styles/ag-theme-material.css';
 
@@ -9,6 +17,7 @@ function Todolist() {
         desc: '',
         date: '',
         priority: ''})
+    const [open, setOpen] = useState(false)
     const [todos, setTodos] = useState([])
     const [columnDefs]=useState([
         {field:'date', sortable: true, filter:true, floatingFilter: true},
@@ -16,6 +25,9 @@ function Todolist() {
         {field:'priority', sortable: true, filter:true, floatingFilter: true, 
         cellStyle: params => params.value === "High" ? {color: 'red'} : {color: 'black'} }
     ])
+    
+    const[date, setDate ] = useState(null)
+
    
     const gridRef = useRef()
     const addTodo = () => {
@@ -30,6 +42,7 @@ function Todolist() {
         if (gridRef.current.getSelectedNodes().length > 0){
         setTodos(todos.filter((todo,index) => index !== 
       gridRef.current.getSelectedNodes()[0].childIndex))
+      setOpen(true)
     }
     else {
         alert('Select row first')
@@ -37,27 +50,51 @@ function Todolist() {
     }   
    
     return(
-        <div className="List">
-            <h2>Todolist</h2>
-            <input
-            type="date"
+        <div>
+            <Stack 
+            alignItems="center"
+            justifyContent="center"
+            direction="row" 
+            spacing={2}>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+             <DatePicker
+                label="Choose date"
+                value={date}
+                onChange={(date) => {
+                 setDate(date);
+        }}
+        renderInput={(params) => <TextField {...params} />}
+      />
+        </LocalizationProvider>
+           <TextField
             name="date"
+            label="Date"
+            variant="standard"
             value={todo.date} 
             onChange={inputChanged}/> 
-            <input
-            type="text"
+            <TextField
             name="desc"
-            placeholder='description'
+            variant="standard"
+            label="Description"
             value={todo.desc}
             onChange={inputChanged}/>
-            <input
-            type="text"
+            <TextField
             name="priority"
-            placeholder='priority'
+            variant="standard"
+            label="Priority"
             value={todo.priority} 
             onChange={inputChanged}/> 
-            <button onClick={addTodo}>Add</button>
-            <button onClick={deleteTodo}>Delete</button>
+            <Button 
+            variant="outlined" 
+            color="success" 
+            startIcon={<AddCircleOutlineIcon/>}
+            onClick={addTodo}>Add</Button>
+            <Button 
+            variant="outlined" 
+            color="error" 
+            startIcon={<DeleteIcon />}
+            onClick={deleteTodo}>Delete</Button>
+            </Stack>
             <div className='ag-theme-material' style={{width:'60%', height:500, margin:'auto'}}>
         <AgGridReact
             ref={gridRef}
@@ -70,6 +107,12 @@ function Todolist() {
 
        </AgGridReact>
     </div>
+        <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={() => setOpen(false)}
+        message="Todo deleted succesfully"
+        />
         </div>
     )
 }
